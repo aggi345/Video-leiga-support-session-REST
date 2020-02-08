@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: is.hi.hbv501.videoleiga.videoleiga.VideoleigaApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 30.87 s - in is.hi.hbv501.videoleiga.videoleiga.VideoleigaApplicationTests

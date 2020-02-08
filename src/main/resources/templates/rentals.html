@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="https://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Rentals</title>
+</head>
+<body>
+<div th:switch="${rentalLog}">
+    <h2 th:case="null">No rentals yet!</h2>
+    <div th:case="*">
+        <h2>Rentals</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Movie</th>
+                <th>User</th>
+                <th>From</th>
+                <th>To</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="log : ${rentalLog}">
+                <td th:text="${log.movie}"></td>
+                <td th:text="${log.user}"></td>
+                <td th:text="${log.fromdate}"></td>
+                <td th:text="${log.todate}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
