@@ -1,6 +1,7 @@
 package is.hi.hbv501.videoleiga.videoleiga.Entities;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +14,7 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NotNull
     private String title;
     private String description;
     private Double rating;

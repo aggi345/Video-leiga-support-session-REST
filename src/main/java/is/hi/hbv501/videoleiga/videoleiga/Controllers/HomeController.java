@@ -4,7 +4,8 @@ import is.hi.hbv501.videoleiga.videoleiga.Entities.Genre;
 import is.hi.hbv501.videoleiga.videoleiga.Entities.Movie;
 import is.hi.hbv501.videoleiga.videoleiga.Entities.RentalLog;
 import is.hi.hbv501.videoleiga.videoleiga.Entities.User;
-import is.hi.hbv501.videoleiga.videoleiga.RequestWrappers.SearchRequestWrapper;
+import is.hi.hbv501.videoleiga.videoleiga.Wrappers.Responses.*;
+import is.hi.hbv501.videoleiga.videoleiga.Wrappers.Requests.SearchRequestWrapper;
 import is.hi.hbv501.videoleiga.videoleiga.Services.MovieService;
 import is.hi.hbv501.videoleiga.videoleiga.Services.RentalLogService;
 import is.hi.hbv501.videoleiga.videoleiga.Services.UserService;
@@ -18,9 +19,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @RestController
 public class HomeController {
@@ -41,8 +40,8 @@ public class HomeController {
      * @return All movies
      */
     @RequestMapping("/")
-    public @ResponseBody List<Movie> Home(){
-        return movieService.findAll();
+    public ResponseEntity<GetAllMoviesResponse> Home(){
+        return new ResponseEntity<>(new GetAllMoviesResponse(movieService.findAll()), HttpStatus.OK);
     }
 
 
@@ -59,12 +58,12 @@ public class HomeController {
      * @return The movie that was created
      */
     @RequestMapping(value ="/addmovie", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> addMovie(@Valid @RequestBody Movie movie, BindingResult result){
+    public ResponseEntity<AddMovieResponse> addMovie(@Valid @RequestBody Movie movie, BindingResult result){
         if(result.hasErrors()){
             // Do something with errors
-            return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new AddMovieResponse(null, result.getFieldErrors()), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(movieService.save(movie), HttpStatus.CREATED);
+        return new ResponseEntity<>(new AddMovieResponse(movieService.save(movie)), HttpStatus.CREATED);
     }
 
 
@@ -81,14 +80,16 @@ public class HomeController {
      * @param id The movie ID
      * @return a valid StatusCode with a message
      */
-    @RequestMapping(value="/delete/{id}", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> deleteMovie(@PathVariable("id") long id){
-        if (!movieService.findById(id).isPresent())
-            return new ResponseEntity<>("No movie with given ID exists", HttpStatus.NOT_FOUND);
-
+    @RequestMapping(value="/delete/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<DeleteMovieResponse> deleteMovie(@PathVariable("id") long id){
+        if (!movieService.findById(id).isPresent()) {
+            List<String> errors = new ArrayList<>();
+            errors.add("No movie with id: " + id + " exists");
+            return new ResponseEntity<>(new DeleteMovieResponse(null, errors), HttpStatus.NOT_FOUND);
+        }
         movieService.findById(id).ifPresent(movie -> movieService.delete(movie));
 
-        return new ResponseEntity<>(id, HttpStatus.OK);
+        return new ResponseEntity<>(new DeleteMovieResponse(), HttpStatus.OK);
     }
 
     /**
@@ -96,7 +97,7 @@ public class HomeController {
      * @return All movies
      */
     @RequestMapping("/makedata")
-    public @ResponseBody List<Movie> makeData(){
+    public ResponseEntity<GetAllMoviesResponse> makeData(){
         HashSet<Genre> genres = new HashSet<>();
         genres.add(Genre.ADVENTURE);
         genres.add(Genre.ACTION);
@@ -113,12 +114,15 @@ public class HomeController {
             e.printStackTrace();
         }
 
-        return tempMovie;
+        return new ResponseEntity<>(new GetAllMoviesResponse(movieService.findAll()), HttpStatus.CREATED);
     }
 
+    /**
+     * Return all rentals
+     */
     @RequestMapping("/rentals")
-    public @ResponseBody List<RentalLog> allRentals(){
-        return rentalLogService.findAll();
+    public @ResponseBody ResponseEntity<GetAllRentalsResponse> allRentals(){
+        return new ResponseEntity<>(new GetAllRentalsResponse(rentalLogService.findAll()), HttpStatus.OK);
     }
 
     /**
@@ -143,8 +147,9 @@ public class HomeController {
      * @return All movies based on search string
      */
     @RequestMapping(value= "/movieSearch", method = RequestMethod.POST)
-    public @ResponseBody List<Movie> searchMovie(@RequestBody SearchRequestWrapper searchRequestWrapper){
-        return movieService.findByTitle(searchRequestWrapper.getSearch());
+    public ResponseEntity<SearchResponse> searchMovie(@RequestBody SearchRequestWrapper searchRequestWrapper){
+        List<Movie> movies = movieService.findByTitle(searchRequestWrapper.getSearch());
+        return new ResponseEntity<>(new SearchResponse(movies), HttpStatus.OK);
     }
 
     /**
@@ -164,26 +169,27 @@ public class HomeController {
      * }
      */
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> signUpPOST(@Valid @RequestBody User user, BindingResult result){
-        HashMap<String, String> jsonMap = new HashMap<>();
+    public ResponseEntity<LoginAndSignUpResponse> signUpPOST(@Valid @RequestBody User user, BindingResult result){
         if(result.hasErrors()){
-            jsonMap.put("message", "Error something something");
-            return new ResponseEntity<>(jsonMap, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new LoginAndSignUpResponse(user, null, result.getFieldErrors()), HttpStatus.BAD_REQUEST);
         }
         User exists = userService.findByUName(user.uName);
         if(exists == null){
             userService.save(user);
         } else {
-            jsonMap.put("message", "Username already taken");
-            return new ResponseEntity<>(jsonMap, HttpStatus.BAD_REQUEST);
+            List<String> errors = new ArrayList<>();
+            errors.add("Username already taken");
+            return new ResponseEntity<>(new LoginAndSignUpResponse(user, null, errors), HttpStatus.BAD_REQUEST);
         }
-        jsonMap.put("message", "User created successfully");
-        return new ResponseEntity<>(jsonMap, HttpStatus.CREATED);
+        return new ResponseEntity<>(new LoginAndSignUpResponse(user, "User created successfully", null), HttpStatus.CREATED);
     }
 
+    /**
+     * Return all users
+     */
     @RequestMapping(value = "/users", method = RequestMethod.GET)
-    public @ResponseBody List<User> usersGET(){
-        return userService.findAll();
+    public ResponseEntity<GetAllUsersResponse> usersGET(){
+        return new ResponseEntity<>(new GetAllUsersResponse(userService.findAll()), HttpStatus.OK);
     }
 
     /**
@@ -204,20 +210,19 @@ public class HomeController {
      * }
      */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> loginPOST(@Valid @RequestBody User user, BindingResult result, HttpSession session){
+    public ResponseEntity<LoginAndSignUpResponse> loginPOST(@Valid @RequestBody User user, BindingResult result, HttpSession session){
         HashMap<String, String> jsonMap = new HashMap<>();
         if(result.hasErrors()){
-            jsonMap.put("message", "Something something error");
-            return new ResponseEntity<>(jsonMap, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new LoginAndSignUpResponse(user, null, result.getFieldErrors()), HttpStatus.BAD_REQUEST);
         }
         User exists = userService.login(user);
         if(exists != null){
             session.setAttribute("LoggedInUser", user);
-            jsonMap.put("message","Login successful");
-            return new ResponseEntity<>(jsonMap, HttpStatus.OK);
+            return new ResponseEntity<>(new LoginAndSignUpResponse(user, "Login successful",null), HttpStatus.OK);
         }
-        jsonMap.put("message", "Something something error figure out right StatusCode");
-        return new ResponseEntity<>(jsonMap, HttpStatus.I_AM_A_TEAPOT);
+        List<String> errors = new ArrayList<>();
+        errors.add("Login unsuccessful");
+        return new ResponseEntity<>(new LoginAndSignUpResponse(user, null, errors), HttpStatus.BAD_REQUEST);
     }
 
 
@@ -226,14 +231,15 @@ public class HomeController {
      *       from being included in the response.
      */
     @RequestMapping(value = "/loggedin", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> loggedinGET(HttpSession session){
+    public ResponseEntity<GetUserResponse> loggedinGET(HttpSession session){
         HashMap<String, String> jsonMap = new HashMap<>();
 
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         if(sessionUser  != null){
-            return new ResponseEntity<>(sessionUser, HttpStatus.OK);
+            return new ResponseEntity<>(new GetUserResponse(sessionUser), HttpStatus.OK);
         }
-        jsonMap.put("message", "You have to be logged in to visit this page");
-        return new ResponseEntity<>(jsonMap, HttpStatus.UNAUTHORIZED);
+        List<String> errors = new ArrayList<>();
+        errors.add("You must be logged in to visit this page");
+        return new ResponseEntity<>(new GetUserResponse(null, null, errors ), HttpStatus.UNAUTHORIZED);
     }
 }

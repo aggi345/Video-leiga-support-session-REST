@@ -1,4 +1,4 @@
-package is.hi.hbv501.videoleiga.videoleiga.RequestWrappers;
+package is.hi.hbv501.videoleiga.videoleiga.Wrappers.Requests;
 
 
 public class SearchRequestWrapper {
