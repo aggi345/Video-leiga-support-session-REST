@@ -101,15 +101,19 @@ public class HomeController {
         HashSet<Genre> genres = new HashSet<>();
         genres.add(Genre.ADVENTURE);
         genres.add(Genre.ACTION);
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             this.movieService.save(new Movie("Great movie "+i,"fantastic movie in a trilogy",Double.valueOf(i),genres));
         }
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        User tempUser = new User("Karl Jóhann","pass123");
+        User tempUser1 = new User("Karl Jóhann","pass123");
+        User tempUser2 = new User("Jóhann Karl","pass123");
         List<Movie> tempMovie = movieService.findAll();
-        this.userService.save(tempUser);
+        this.userService.save(tempUser1);
+        this.userService.save(tempUser2);
         try {
-            rentalLogService.save(new RentalLog(tempMovie.get(0),tempUser,sdf.parse("21/12/2012"),sdf.parse("31/12/2013") ));
+            rentalLogService.save(new RentalLog(tempMovie.get(0),tempUser1,sdf.parse("21/12/2012"),sdf.parse("31/12/2013") ));
+            rentalLogService.save(new RentalLog(tempMovie.get(1),tempUser1,sdf.parse("21/12/2012"),sdf.parse("31/12/2013") ));
+            rentalLogService.save(new RentalLog(tempMovie.get(2),tempUser2,sdf.parse("21/12/2012"),sdf.parse("31/12/2013") ));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -211,7 +215,6 @@ public class HomeController {
      */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<LoginAndSignUpResponse> loginPOST(@Valid @RequestBody User user, BindingResult result, HttpSession session){
-        HashMap<String, String> jsonMap = new HashMap<>();
         if(result.hasErrors()){
             return new ResponseEntity<>(new LoginAndSignUpResponse(user, null, result.getFieldErrors()), HttpStatus.BAD_REQUEST);
         }
@@ -232,8 +235,6 @@ public class HomeController {
      */
     @RequestMapping(value = "/loggedin", method = RequestMethod.GET)
     public ResponseEntity<GetUserResponse> loggedinGET(HttpSession session){
-        HashMap<String, String> jsonMap = new HashMap<>();
-
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         if(sessionUser  != null){
             return new ResponseEntity<>(new GetUserResponse(sessionUser), HttpStatus.OK);

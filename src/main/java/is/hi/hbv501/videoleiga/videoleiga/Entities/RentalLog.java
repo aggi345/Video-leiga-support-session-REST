@@ -1,5 +1,6 @@
 package is.hi.hbv501.videoleiga.videoleiga.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
 import java.util.Date;
 
@@ -13,6 +14,7 @@ public class RentalLog {
     private Movie movie;
 
     @ManyToOne
+    @JsonIgnoreProperties("rentals")
     private User user;
 
     public Date fromdate;
