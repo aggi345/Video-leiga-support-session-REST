@@ -20,11 +20,7 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "user")
-<<<<<<< HEAD
     @JsonIgnoreProperties({"user"})
-=======
-    @JsonIgnoreProperties({"user","todate"})
->>>>>>> master
     private List<RentalLog> rentals = new ArrayList<>();
 
     public List<RentalLog> getRentals() {
