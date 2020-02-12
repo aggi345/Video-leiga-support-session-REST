@@ -1,11 +1,10 @@
 package is.hi.hbv501.videoleiga.videoleiga.Entities;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
-import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,10 +17,10 @@ public class User {
 
     public String uName;
 
-    public String password;
-
+    private String password;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnoreProperties({"user","todate"})
     private List<RentalLog> rentals = new ArrayList<>();
 
     public List<RentalLog> getRentals() {

@@ -2,7 +2,6 @@ package is.hi.hbv501.videoleiga.videoleiga.Wrappers.Responses;
 
 import java.util.List;
 
-
 /************************
  * Höfundur: Kristján P.*
  ************************/
@@ -10,13 +9,13 @@ public class GenericResponse {
     private String message;
     private List<?> errors;
 
-    GenericResponse(){}
+    GenericResponse() {
+    }
 
-    GenericResponse(String message, List<?> errors){
+    GenericResponse(String message, List<?> errors) {
         this.message = message;
         this.errors = errors;
     }
-
 
     public String getMessage() {
         return message;
