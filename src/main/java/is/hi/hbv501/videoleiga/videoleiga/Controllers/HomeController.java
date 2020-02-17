@@ -44,7 +44,6 @@ public class HomeController {
         return new ResponseEntity<>(new GetAllMoviesResponse(movieService.findAll()), HttpStatus.OK);
     }
 
-
     /**
      * Request body sent as JSON
      * Looks like this:
@@ -66,7 +65,6 @@ public class HomeController {
         return new ResponseEntity<>(new AddMovieResponse(movieService.save(movie)), HttpStatus.CREATED);
     }
 
-
     /**
      * No need to use
      */
@@ -81,7 +79,7 @@ public class HomeController {
      * @return a valid StatusCode with a message
      */
     @RequestMapping(value="/delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<DeleteMovieResponse> deleteMovie(@PathVariable("id") long id){
+    public ResponseEntity<?> deleteMovie(@PathVariable("id") long id){
         if (!movieService.findById(id).isPresent()) {
             List<String> errors = new ArrayList<>();
             errors.add("No movie with id: " + id + " exists");
@@ -89,8 +87,9 @@ public class HomeController {
         }
         movieService.findById(id).ifPresent(movie -> movieService.delete(movie));
 
-        return new ResponseEntity<>(new DeleteMovieResponse(), HttpStatus.OK);
+        return ResponseEntity.noContent().build();
     }
+
 
     /**
      * Create some data
@@ -118,7 +117,7 @@ public class HomeController {
             e.printStackTrace();
         }
 
-        return new ResponseEntity<>(new GetAllMoviesResponse(movieService.findAll()), HttpStatus.CREATED);
+        return new ResponseEntity<>(new GetAllMoviesResponse(tempMovie), HttpStatus.CREATED);
     }
 
     /**
