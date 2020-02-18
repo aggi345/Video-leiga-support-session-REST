@@ -42,7 +42,7 @@ public class SimpleController {
 
     @RequestMapping("/movies")
     public List<Movie> Home(@RequestParam(value = "search", required = false) String search) {
-        if(search != null)
+        if (search != null)
             return movieService.findByTitle(search);
         else
             return movieService.findAll();
@@ -58,16 +58,17 @@ public class SimpleController {
 
     @RequestMapping(value = "/movies/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteMovie(@PathVariable("id") long id) {
-        Movie movie = movieService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movies not found"));
+        Movie movie = movieService.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movies not found"));
         movieService.delete(movie);
         return ResponseEntity.noContent().build();
     }
-    /* Not needed
-    @RequestMapping(value = "/addmovie", method = RequestMethod.GET)
-    public String addMovieForm(Movie movie) {
-        return "add-movie";
-    }
-    */
+    /*
+     * Not needed
+     * 
+     * @RequestMapping(value = "/addmovie", method = RequestMethod.GET) public
+     * String addMovieForm(Movie movie) { return "add-movie"; }
+     */
 
     @RequestMapping("/makedata")
     public List<Movie> makeData() {
@@ -96,18 +97,18 @@ public class SimpleController {
         return rentalLogService.findAll();
     }
 
-    /* Not needed
-    @RequestMapping("/search")
-    public String search() {
-        return "search";
-    }
-    */
+    /*
+     * Not needed
+     * 
+     * @RequestMapping("/search") public String search() { return "search"; }
+     */
 
-    /* Not needed
-    @RequestMapping(value = "/signup", method = RequestMethod.GET)
-    public String signUpGET(User user) {
-        return "signup";
-    }*/
+    /*
+     * Not needed
+     * 
+     * @RequestMapping(value = "/signup", method = RequestMethod.GET) public String
+     * signUpGET(User user) { return "signup"; }
+     */
 
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
     public User signUpPOST(@Valid @RequestBody User user, BindingResult result) {
@@ -126,14 +127,15 @@ public class SimpleController {
         return userService.findAll();
     }
 
-    /* Not needed
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public String loginGET(User user) {
-        return "login";
-    }*/
+    /*
+     * Not needed
+     * 
+     * @RequestMapping(value = "/login", method = RequestMethod.GET) public String
+     * loginGET(User user) { return "login"; }
+     */
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public User loginPOST(@Valid User user, BindingResult result, HttpSession session) {
+    public User loginPOST(@Valid @RequestBody User user, BindingResult result, HttpSession session) {
         if (result.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "");
         }
@@ -141,8 +143,7 @@ public class SimpleController {
         if (exists != null) {
             session.setAttribute("LoggedInUser", user);
             return exists;
-        }
-        else
+        } else
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Login unsuccessful");
     }
 
@@ -151,8 +152,7 @@ public class SimpleController {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         if (sessionUser != null) {
             return sessionUser;
-        }
-        else
+        } else
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You have to be logged in");
     }
 }
