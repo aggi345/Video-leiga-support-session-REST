@@ -56,6 +56,11 @@ Endpoints should ideally represent collections and instances. (Tables and entrie
 4. Status codes should matter. They are a tool to tell the client if a request was successful or not.
 5. Consider wether the error messages you send from the server should be displayed client-side. In which case they have to be more descriptive.
 
+---
+
++ `@RequestBody` is used when receiving raw json data.
++ `@ModelAttribute` can be used together with a RequestWrapper to receive multipart/form-data (a file).
+
 ## Simple implementation
 
 The [Simple controller](src/main/java/is/hi/hbv501/videoleiga/videoleiga/Controllers/SimpleController.java) is setup to return only the data on success, and is what we mainly covered in the code along. It handles errors by throwing a *ResponseStatusException*.
@@ -66,7 +71,7 @@ This does not focus on the "correct" on success status codes, but always returns
 
 The [Home controller](src/main/java/is/hi/hbv501/videoleiga/videoleiga/Controllers/HomeController.java) uses a uniform structure for every response. Helpful when you are returning more then a single entity in a response.
 
-Request wrappers are necessary when the request body includes 2 or more separate entities:
+Request wrappers can be useful when the request body includes 2 or more separate entities:
 
 ```json
 // JSON object example
